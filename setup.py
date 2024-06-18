@@ -4,19 +4,25 @@ AUTHOR = 'VoxLight'
 AUTHOR_EMAIL = 'VoxLight@protonmail.com'
 REPO_URL = 'https://github.com/VoxLight/fwf'
 DESCRIPTION = 'Fixed Width Files are a NIGHTMARE!!... So, I took my time to make the BEST library for dealing with them! '
-KEYWORDS = 'fixed width file, fixed width files in python, fixedwidth.py alternative, fixed width file handling, fixed width file parser, fixed width file writer, fixed width file reader, fixed width file exporter, fixed width file importer'
+KEYWORDS = [
+    'fixed width file',
+    'fixed width file handler',
+    'fixed width alternative',
+    'fixed width columns',
+    'fixed width rows',
+    # TODO: 'fixed width file reader',
+]
 
 
 
 
 setup(
-    name='fwf',
-    version='0.1.0',
+    name='fixedwidthpy',
+    version='1.0.0',
     packages=find_packages(),
     extras_require={
         'dev': [
             'pytest',
-            'setuptools',
         ]
     },
     author=AUTHOR,

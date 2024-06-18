@@ -77,7 +77,7 @@ class Column:
         - Returns:
             - str: The justified string.
         """
-        if self.align == 'left':
+        if self.spec.align == 'left':
             return self.data.ljust(self.spec.width, self.spec.fill)
         return self.data.rjust(self.spec.width, self.spec.fill)
     
