@@ -22,7 +22,7 @@ pip install git+https://github.com/VoxLight/fixedwidthpy
 Here is a basic example of how to use `fixedwidthpy` to define and use columns, data rows, and the file handler.
 
 ```python
-from fixedwidthpy.data_row import DataRow, mark_as_column
+from fixedwidthpy.datarow import DataRow, mark_as_column
 from fixedwidthpy.fwf_handler import FixedWidthFileHandler
 
 # Define a simple record with some data and column specifications
@@ -54,7 +54,7 @@ You can call `invalidate()` on the instance of your record in the event that you
 
 ```python
 from fixedwidthpy.column import ColumnSpec, Column
-from fixedwidthpy.data_row import DataRow, mark_as_column
+from fixedwidthpy.datarow import DataRow, mark_as_column
 from fixedwidthpy.fwf_handler import FixedWidthFileHandler
 
 class AdvancedRecord(DataRow):
