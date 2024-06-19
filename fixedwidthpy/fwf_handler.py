@@ -1,5 +1,5 @@
 """
-Copyright 2024 VoxLight
+Copyright 2024 https://github.com/VoxLight
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@ Copyright 2024 VoxLight
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   /fwf/fwf_handler.py
+   /fixedwidthpy/fwf_handler.py
 """
 from collections import OrderedDict as OD
 from typing import List, Dict, Any, Tuple, Union, Literal
 import datetime
 
 from .datarow import DataRow
+from .exceptions import InvalidDataRow
 
 from collections import OrderedDict as OD
 from typing import List, Dict, Union, Literal
@@ -30,9 +31,17 @@ class FixedWidthFileHandler:
         self._data: List[DataRow] = []
 
     def add_row(self, row: DataRow) -> None:
-        """Add a DataRow to the data."""
+        """
+        Add a DataRow for export into the fixed-width file.
+
+        - Parameters:
+            - row: The DataRow object to add.
+
+        - Raises:
+            - InvalidDataRow: If the value passed for 'row' is not a DataRow.
+        """
         if not isinstance(row, DataRow):
-            raise ValueError("Only DataRow objects can be added.")
+            raise InvalidDataRow(f"Only DataRow objects can be added. {row} is of type {type(row).__name__}.")
         self._data.append(row)
 
     def export_to_fw_file(

@@ -1,5 +1,5 @@
 """
-Copyright 2024 VoxLight
+Copyright 2024 https://github.com/VoxLight
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@ Copyright 2024 VoxLight
    See the License for the specific language governing permissions and
    limitations under the License.
 
-   /fwf/column.py
+   /fixedwidthpy/column.py
 """
 from typing import Any, Callable
 from .exceptions import InvalidColumnSpec, InvalidColumnData
