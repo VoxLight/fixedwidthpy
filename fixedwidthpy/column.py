@@ -62,7 +62,7 @@ class Column:
         if not isinstance(spec, ColumnSpec):
             raise InvalidColumnData("Value for 'spec' not of type 'ColumnSpec'.")
         if len(str(data)) > spec.width:
-            raise InvalidColumnData("Data exceeds column width.")
+            raise InvalidColumnData(f"Data in column '{spec.name}' exceeds column width ({spec.width}).")
         
         self.data: str = str(data)
         self.spec: ColumnSpec = spec
