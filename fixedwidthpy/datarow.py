@@ -19,6 +19,9 @@ from typing import List, Any
 from .column import Column, ColumnSpec
 import logging
 
+import asyncio
+from asyncio.coroutines import iscoroutine
+
 logger = logging.getLogger(__name__)
 
 def mark_as_column(header: str, width: int, order: int = -1, fill: str = ' ', align: str = 'left'):
@@ -98,3 +101,41 @@ class DataRow:
 
     def __repr__(self):
         return f"DataRow({self.columns})"
+
+class AsyncDataRow(DataRow):
+
+    async def fetch_data(self) -> List[Column]:
+        """
+        Fetch the data by calling decorated methods in the specified order asynchronously.
+
+        - Returns:
+            - List[Column]: The list of columns in the row.
+        """
+        # Collect methods decorated with @mark_as_column
+        coroutines = [
+            (name, method)
+            for name, method in vars(self.__class__).items()
+            if iscoroutine(method) and hasattr(method, '_column_spec')
+        ]
+
+        # Sort coroutines by their specified order
+        coroutines.sort(key=lambda item: item[1]._column_spec['order'])
+
+        # Gather all coroutines and store the result in the columns list
+        results = await asyncio.gather(*[method(self) for name, method in coroutines])
+
+        if not self.is_valid:
+            logger.info(f"Invalid DataRow: {self.invalid_reason}")
+            return []
+
+        for i, (name, method) in enumerate(coroutines):
+            spec: ColumnSpec = method._column_spec['spec']
+            value = results[i]
+            column = Column(value, spec)
+            if not self.is_valid:
+                break
+            self.columns.append(column)
+        
+        return self.columns
+
+        
