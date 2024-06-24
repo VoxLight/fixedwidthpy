@@ -15,16 +15,14 @@ Copyright 2024 https://github.com/VoxLight
 
    /fixedwidthpy/fwf_handler.py
 """
+from typing import List, Dict, Union, Tuple, Literal
+
 from collections import OrderedDict as OD
-from typing import List, Dict, Any, Tuple, Union, Literal
 import datetime
 
 from .datarow import DataRow
 from .exceptions import InvalidDataRow
 
-from collections import OrderedDict as OD
-from typing import List, Dict, Union, Literal
-import datetime
 
 class FixedWidthFileHandler:
     def __init__(self):
@@ -82,34 +80,3 @@ class FixedWidthFileHandler:
             - col_specs: A dictionary of column specifications. The keys are column names and the values are either integers (for fixed-width columns) or tuples of integers and strings (for columns with fill characters).
         """
         raise NotImplementedError("Importing data from fixed-width file is not implemented yet.")
-
-
-
-# Example usage
-def main():
-    # Write the first record to the file
-    handler1 = FixedWidthFileHandler()
-    handler1.add_row(OD({"name": "Alice", "age": 25, "zip": "12345"}))
-    handler1.add_row(OD({"name": "Bob", "age": 30, "zip": "54321"}))
-    handler1.add_row(OD({"name": "Charlie", "age": 35, "zip": "67890"}))
-    handler1.add_row(OD({"name": "David", "age": 40, "zip": "09876"}))
-
-    handler1.export_to_fw_file(
-        "data.txt",                     # Name of the file
-        {                               # Column specifications
-            "name": 20,                 # Fixed width of 20
-            "age": (3, '0', 'right'),   # Fixed width of 3, fill with '0', right align
-            "zip": (15, '0', 'right')   # Fixed width of 15, fill with '0', right align
-        }, 
-        include_header=False,           # Do not include header
-        mode='w'                        # Write mode
-    )
-    
-    # Import records from the file
-    handler2 = FixedWidthFileHandler()
-    handler2.add_row(OD({"records": 4, "timestamp": datetime.datetime.now()}))
-    handler2.export_to_fw_file("data.txt", {"records": (3, '0', 'right'), "timestamp": 30}, include_header=False, mode='a')
-
-
-if __name__ == "__main__":
-    main()
