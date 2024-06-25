@@ -15,12 +15,18 @@ Copyright 2024 https://github.com/VoxLight
 
    /fixedwidthpy/column.py
 """
-from typing import Any, Callable
+from typing import Any, Dict
 from .exceptions import InvalidColumnSpec, InvalidColumnData
 
 class ColumnSpec:
 
-    def __init__(self, name:str, width: int, fill: str = ' ', align: str = 'left'):
+    def __init__(self, 
+                 name:str, 
+                 width: int, 
+                 fill: str = ' ', 
+                 align: str = 'left',
+                 order: int = -1
+                 ):
         """
         Initialize a ColumnSpec object.
 
@@ -40,11 +46,27 @@ class ColumnSpec:
             raise InvalidColumnSpec("Value for 'align' not a string.")
         if align not in ('left', 'right'):
             raise InvalidColumnSpec("Value for 'align' must be 'left' or 'right'.")
+        if len(fill) != 1:
+            raise InvalidColumnSpec("Fill character must be a single character.")
+        if width < 1:
+            raise InvalidColumnSpec("Column width must be greater than zero.")
+        if not isinstance(order, int) or order < -1:
+            raise InvalidColumnSpec("Order must be an integer greater than or equal to -1.")
         
         self.name:  str = name
         self.width: int = width
         self.fill:  str = fill
         self.align: str = align
+        self.order: int = order
+
+    def as_dict(self) -> Dict[str, Any]:
+        return {
+            'name': self.name,
+            'width': self.width,
+            'fill': self.fill,
+            'align': self.align,
+            'order': self.order
+        }
 
     def __iter__(self):
         return iter((self.name, self.width, self.fill, self.align))

@@ -15,18 +15,23 @@ Copyright 2024 https://github.com/VoxLight
 
    /fixedwidthpy/datarow.py
 """
-from typing import List, Any
+from typing import List, Any, Dict, Callable
 from .column import Column, ColumnSpec
 import logging
+import json
+import os
 
 logger = logging.getLogger(__name__)
 
 def mark_as_column(header: str, width: int, order: int = -1, fill: str = ' ', align: str = 'left'):
     def decorator(func):
-        func._column_spec = {
-            'spec': ColumnSpec(name=header, width=width, fill=fill, align=align),
-            'order': order
-        }
+        func._column_spec = ColumnSpec(
+            name=header,
+              width=width, 
+            fill=fill, 
+              align=align,
+            order=order,
+        )
         return func
     return decorator
 
@@ -42,8 +47,28 @@ class DataRow:
             - invalid_reason (str): The reason the row is invalid.
         """
         self.columns: List[Column] = []
+        self._is_data_fetched: bool = False
         self.is_valid: bool = True
         self.invalid_reason: str = ""
+
+    @property
+    def number_of_columns(self) -> int:
+        """
+        Get the number of columns in the row.
+
+        - Returns:
+            - int: The number of columns in the row.
+        """
+        return len(self.columns)
+    
+    def is_empty(self) -> bool:
+        """
+        Check if the row is empty.
+
+        - Returns:
+            - bool: True if the row is empty, False otherwise.
+        """
+        return self.number_of_columns == 0
 
     def invalidate(self, reason: str):
         """
@@ -56,6 +81,33 @@ class DataRow:
         self.invalid_reason = reason
         logger.info(f"Row invalidated: {reason}")
 
+    def _fetch_decorated_methods(self) -> List[Callable]:
+        """
+        Fetch all columns on this DataRow instance that are marked as columns.
+
+        - Returns:
+            - List[Callable]: The list of instance methods marked as columns.
+        """
+        # Collect methods decorated with @mark_as_column
+        methods = [
+            method for _, method in vars(self.__class__).items()
+            if callable(method) and 
+            hasattr(method, '_column_spec') and 
+            isinstance(method._column_spec, ColumnSpec)
+        ]
+
+        # Sort methods by their specified order
+        # Did you know that Python lists retain order of insertion?
+        # You don't have to specify the order, and your columns 
+        # will be in the order you defined them!
+        # However, being explicit will help when you want to give
+        # someone else the config so the order of the columns 
+        # doesn't matter when they define a DataRow to import it.
+        methods.sort(key=lambda item: item._column_spec.order)
+        
+        # Return the list of column specifications
+        return [method for _, method in methods]
+
     def fetch_data(self) -> List[Column]:
         """
         Fetch the data by calling decorated methods in the specified order.
@@ -63,29 +115,63 @@ class DataRow:
         - Returns:
             - List[Column]: The list of columns in the row.
         """
+        self._is_data_fetched = True
         # Collect methods decorated with @mark_as_column
-        methods = [
-            (name, method)
-            for name, method in vars(self.__class__).items()
-            if callable(method) and hasattr(method, '_column_spec')
-        ]
-        
-        # Sort methods by their specified order
-        methods.sort(key=lambda item: item[1]._column_spec['order'])
-        
-        # Call each method and store the result in the columns list
-        for _, method in methods:
-            spec: ColumnSpec = method._column_spec['spec']
-            value = method(self)
-            column = Column(value, spec)
-            if not self.is_valid:
-                break
-            self.columns.append(column)
+        methods = self._fetch_decorated_methods()
 
-        if not self.is_valid:
-            logger.info(f"Invalid DataRow: {self.invalid_reason}")
-            return []
+        for method in methods:
+            try:
+                # Call the method and get the data
+                data = method(self)
+                if self.is_valid is False:
+                    break
+                # Create a column object
+                col = Column(data, method._column_spec)
+                # Append the column to the list
+                self.columns.append(col)
+            except Exception as e:
+                self.invalidate(f"Error fetching data: {e}")
+                break
+        
         return self.columns
+    
+    def get_config(self, filename: str = None) -> List[Dict[str, Any]]:
+        """
+        Get the configuration for the row as a Dict where the key is the column name,
+        and the value is a dictionary with the ColumnSpec attributes. This config can
+        be imported into a data row class to recreate the column specifications. This
+        way, you just mark each column with the header name, and the rest of the con-
+        fig is imported from the file.
+
+        Example Config:
+        {
+            {'name':'name','width': '10', 'fill': ' ', 'align': 'left', 'order': '0'},
+            {'name':'age','width': '3', 'fill': '0', 'align': 'right', 'order': '1'},
+            {'name':'city','width': '15', 'fill': ' ', 'align': 'left', 'order': '2'},
+        }
+
+        Args:
+            filename (str): The name of the file to write the config to. Defaults to None. 
+            If None, the configuration is only returned as a dictionary.
+
+        Returns:
+            List[Dict[str, Any]]: The list of column specifications.
+        """
+        # We are going to require you to make sure the file exists when writing.
+        if filename and not os.path.exists(filename):
+            logger.error(f"Provided file does not exist: {filename}")
+            raise FileNotFoundError(f"File not found: {filename}.")
+
+        # Create a list to hold the column specifications
+        config = [method._column_spec.as_dict() for method in self._fetch_decorated_methods()]
+
+        # Write the configuration to a file if a filename is provided
+        if filename:
+            with open(filename, 'w') as f:
+                json.dump(config, f, indent=4)
+                logger.info(f"Configuration for {self.__class__.__name__} written to {filename}")
+        
+        return config
 
     def get_data_row(self) -> List[str]:
         """

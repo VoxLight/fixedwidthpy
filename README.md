@@ -7,6 +7,8 @@
 
 Fixed Width Files are a NIGHTMARE!! So, I took my time to make the BEST library for dealing with them!
 
+fixedwidthpy is a Python library that helps you work with fixed-width files. The approach to data handling in fixedwidthpy is done in a uniquely pythonic way. It is fast and easy to use while also staying very flexible. 
+
 ## License
 
 ```
@@ -26,6 +28,15 @@ Copyright 2024 https://github.com/VoxLight
 
    /README.md
 ```
+
+## Prerequisites
+
+There are no dependancies for this library. Hoorah! But, you will need Python 3.8 or higher to use it.
+Additionally, if you want to install the package using pip, you will need to have git installed on your
+system.
+
+- Get python [here](https://www.python.org/downloads/)
+- Get git [here](https://git-scm.com/download)
 
 ## Installation
 

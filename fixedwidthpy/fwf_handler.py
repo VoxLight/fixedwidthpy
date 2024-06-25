@@ -62,6 +62,8 @@ class FixedWidthFileHandler:
         try:
             with open(file_path, mode) as f:
                 for data_row in self._data:
+                    if not data_row._is_data_fetched:
+                        data_row.fetch_data()
                     if not data_row.is_valid:
                         continue
                     row_line = ''.join(data_row.get_data_row())
