@@ -75,17 +75,23 @@ class DataRow:
         
         # Call each method and store the result in the columns list
         for _, method in methods:
+
+            # Get the spec for this column and the data
             spec: ColumnSpec = method._column_spec['spec']
-            value = method(self)
-            column = Column(value, spec)
+            data = method(self)
+
+            # If this row is invalidated from method(), break
             if not self.is_valid:
+                logger.info(f"{self.__class__.__name__} has been invalidated with reason: {self.invalid_reason}")
+                self.columns = []
                 break
+            
+            # We made it here, the data must be good, so pack it as a Column
+            column = Column(data, spec)
             self.columns.append(column)
 
-        if not self.is_valid:
-            logger.info(f"Invalid DataRow: {self.invalid_reason}")
-            return []
         return self.columns
+    
 
     def get_data_row(self) -> List[str]:
         """
