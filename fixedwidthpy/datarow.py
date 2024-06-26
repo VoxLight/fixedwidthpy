@@ -17,11 +17,24 @@ Copyright 2024 https://github.com/VoxLight
 """
 from typing import List, Any, Dict, Callable
 from .column import Column, ColumnSpec
-import logging
+from . import logger
 import json
 import os
 
-logger = logging.getLogger(__name__)
+
+FixedWidthConfig = List[ColumnSpec]
+"""
+Represents the configuration for a DataRow object. This is a list of dictionaries or a filename.
+
+- List[ColumnSpec]: The list of column specifications.
+
+Example Config:
+[
+    {'name':'name','width': 10, 'fill': ' ', 'align': 'left',  'order': '0'},
+    {'name':'age', 'width': 3,  'fill': '0', 'align': 'right', 'order': '1'},
+    {'name':'city','width': 15, 'fill': ' ', 'align': 'left',  'order': '2'},
+]
+"""
 
 def mark_as_column(header: str, width: int, order: int = -1, fill: str = ' ', align: str = 'left'):
     def decorator(func):
@@ -36,8 +49,7 @@ def mark_as_column(header: str, width: int, order: int = -1, fill: str = ' ', al
     return decorator
 
 class DataRow:
-    
-    def __init__(self):
+    def __init__(self, columns: List[Column] = None):
         """
         Initialize the DataRow object.
 
@@ -46,7 +58,7 @@ class DataRow:
             - is_valid (bool): A flag indicating if the row is valid.
             - invalid_reason (str): The reason the row is invalid.
         """
-        self.columns: List[Column] = []
+        self.columns: List[Column] = columns if columns is not None else []
         self._is_data_fetched: bool = False
         self.is_valid: bool = True
         self.invalid_reason: str = ""
@@ -90,6 +102,45 @@ class DataRow:
         
         # Return the list of column specifications
         return [method for _, method in methods]
+
+    def add_column(self, column: Column):
+        """
+        Add a column to the row.
+
+        - Parameters:
+            - data (Any): The data for the column.
+            - spec (ColumnSpec): The specification for the column.
+        """
+        self.columns.append(column)
+
+    def add_columns(self, columns: List[Column]):
+        """
+        Add a list of columns to the row.
+
+        - Parameters:
+            - columns (List[Column]): The list of columns to add.
+        """
+        self.columns.extend(columns)
+
+    def add_column_from_data(self, data: Any, spec: ColumnSpec):
+        """
+        Add a column to the row from data and a spec.
+
+        - Parameters:
+            - data (Any): The data for the column.
+            - spec (ColumnSpec): The specification for the column.
+        """
+        self.columns.append(Column(data, spec))
+
+    def add_columns_from_data(self, data: List[Any], specs: List[ColumnSpec]):
+        """
+        Add a list of columns to the row from a list of data and a list of specs.
+
+        - Parameters:
+            - data (List[Any]): The list of data for the columns.
+            - specs (List[ColumnSpec]): The list of specifications for the columns.
+        """
+        self.columns.extend([Column(d, s) for d, s in zip(data, specs)])
 
     def is_empty(self) -> bool:
         """
@@ -138,46 +189,8 @@ class DataRow:
                 break
         
         return self.columns
-    
-    def get_config(self, filename: str = None) -> List[Dict[str, Any]]:
-        """
-        Get the configuration for the row as a Dict where the key is the column name,
-        and the value is a dictionary with the ColumnSpec attributes. This config can
-        be imported into a data row class to recreate the column specifications. This
-        way, you just mark each column with the header name, and the rest of the con-
-        fig is imported from the file.
 
-        Example Config:
-        {
-            {'name':'name','width': '10', 'fill': ' ', 'align': 'left', 'order': '0'},
-            {'name':'age','width': '3', 'fill': '0', 'align': 'right', 'order': '1'},
-            {'name':'city','width': '15', 'fill': ' ', 'align': 'left', 'order': '2'},
-        }
-
-        Args:
-            filename (str): The name of the file to write the config to. Defaults to None. 
-            If None, the configuration is only returned as a dictionary.
-
-        Returns:
-            List[Dict[str, Any]]: The list of column specifications.
-        """
-        # We are going to require you to make sure the file exists when writing.
-        if filename and not os.path.exists(filename):
-            logger.error(f"Provided file does not exist: {filename}")
-            raise FileNotFoundError(f"File not found: {filename}.")
-
-        # Create a list to hold the column specifications
-        config = [method._column_spec.as_dict() for method in self._fetch_decorated_methods()]
-
-        # Write the configuration to a file if a filename is provided
-        if filename:
-            with open(filename, 'w') as f:
-                json.dump(config, f, indent=4)
-                logger.info(f"Configuration for {self.__class__.__name__} written to {filename}")
-        
-        return config
-
-    def get_data_row(self) -> List[str]:
+    def get_data(self) -> List[str]:
         """
         Get the data row as a list of fixed-width strings.
 
@@ -186,7 +199,16 @@ class DataRow:
         """
         return [col.get_data_as_fixed_width() for col in self.columns]
     
-    def get_header_row(self) -> List[str]:
+    def save_config(self) -> FixedWidthConfig:
+        """
+        Get the configuration for the row as a FixedWidthConfig.
+
+        Returns:
+            List[Dict[str, Any]]: The list of column specifications.
+        """
+        return [method._column_spec for method in self._fetch_decorated_methods()]
+    
+    def get_header(self) -> List[str]:
         """
         Get the header row as a list of column names.
 
@@ -194,6 +216,9 @@ class DataRow:
             - List[str]: The list of column names.
         """
         return [col.spec.name for col in self.columns]
+    
+    def __str__(self):
+        return f"DataRow({self.columns})"
 
     def __repr__(self):
         return f"DataRow({self.columns})"
