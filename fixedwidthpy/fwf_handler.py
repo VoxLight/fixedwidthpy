@@ -20,6 +20,7 @@ from typing import List, Dict, Union, Tuple, Literal
 from collections import OrderedDict as OD
 import datetime
 
+from .column import ColumnSpec, Column
 from .datarow import DataRow
 from .exceptions import InvalidDataRow
 
@@ -73,12 +74,46 @@ class FixedWidthFileHandler:
         except ValueError as ve:
             raise ValueError(f"Error exporting data to fixed-width file: {ve}")
 
-    def import_from_fw_file(self, file_path: str, col_specs: Dict[str, Union[int, Tuple[int, str, str]]]) -> None:
+    def import_from_fw_file(
+            self, 
+            fw_file_path: str, 
+            config_path: str
+            ) -> List[DataRow]:
         """
-        Import data from a fixed-width file.
+        Import data from a fixed-width file given the filepath for the data file and the config file.
 
-        - Parameters:
-            - file_path: The path to the file to read from.
-            - col_specs: A dictionary of column specifications. The keys are column names and the values are either integers (for fixed-width columns) or tuples of integers and strings (for columns with fill characters).
+        Args:
+            fw_file_path (str): The path to the fixed-width file.
+            config_path (str): The path to the configuration file.
+
+        Returns:
+            List[DataRow]: The list of DataRow objects created from the fixed-width file.
+
+        Raises:
+            FileNotFoundError: If either of the file paths are invalid.
         """
-        raise NotImplementedError("Importing data from fixed-width file is not implemented yet.")
+        try:
+            with open(config_path, 'r') as f:
+                config: List[dict] = f.read()
+            with open(fw_file_path, 'r') as f:
+                data: List[str] = f.readlines()
+        except FileNotFoundError:
+            raise FileNotFoundError(f"The file path {config_path} is invalid.")
+        
+        rows = []
+        for line in data:
+            row = DataRow()
+            specs = [ColumnSpec(**spec) for spec in config]
+            start = 0
+            end = 0
+            for spec in specs:
+                start = end
+                end += spec.width
+                # Try to strip the fill character from the line.
+                # I.e. if the fill character is '0' and the line is '000123', the column should be '123'
+                # If the fill character is ' ' and the line is 'John Doe                      ', the column should be 'John Doe'
+                row.add_column(Column(line[start:end].strip(spec.fill), spec))
+            rows.append(row)
+
+        return rows
+
