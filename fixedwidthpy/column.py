@@ -16,7 +16,9 @@ Copyright 2024 https://github.com/VoxLight
    /fixedwidthpy/column.py
 """
 from typing import Any, Dict
+
 from .exceptions import InvalidColumnSpec, InvalidColumnData
+from . import logger
 
 class ColumnSpec:
 
@@ -83,8 +85,10 @@ class Column:
         """
         if not isinstance(spec, ColumnSpec):
             raise InvalidColumnData("Value for 'spec' not of type 'ColumnSpec'.")
+        
         if len(str(data)) > spec.width:
-            raise InvalidColumnData(f"Data in column '{spec.name}' exceeds column width ({spec.width}).")
+            logger.warning(f"Data for column '{spec.name}' exceeds width of {spec.width}. Data will be truncated in final output.")
+            data = str(data)[:spec.width]
         
         self.data: str = str(data)
         self.spec: ColumnSpec = spec
