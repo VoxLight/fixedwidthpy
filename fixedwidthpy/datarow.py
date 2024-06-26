@@ -61,6 +61,36 @@ class DataRow:
         """
         return len(self.columns)
     
+    @property
+    def total_width(self) -> int:
+        """
+        Get the total width of the row.
+
+        - Returns:
+            - int: The total width of the row.
+        """
+        return sum([col.spec.width for col in self.columns])
+    
+    def _fetch_decorated_methods(self) -> List[Callable]:
+        """
+        Fetch all methods on this DataRow instance that are marked as columns.
+
+        - Returns:
+            - List[Callable]: The list of instance methods marked as columns.
+        """
+        # Collect methods decorated with @mark_as_column
+        methods = [
+            method for _, method in vars(self.__class__).items()
+            if callable(method) and 
+            hasattr(method, '_column_spec') and 
+            isinstance(method._column_spec, ColumnSpec)
+        ]
+
+        methods.sort(key=lambda item: item._column_spec.order)
+        
+        # Return the list of column specifications
+        return [method for _, method in methods]
+
     def is_empty(self) -> bool:
         """
         Check if the row is empty.
@@ -81,33 +111,6 @@ class DataRow:
         self.invalid_reason = reason
         logger.info(f"Row invalidated: {reason}")
 
-    def _fetch_decorated_methods(self) -> List[Callable]:
-        """
-        Fetch all columns on this DataRow instance that are marked as columns.
-
-        - Returns:
-            - List[Callable]: The list of instance methods marked as columns.
-        """
-        # Collect methods decorated with @mark_as_column
-        methods = [
-            method for _, method in vars(self.__class__).items()
-            if callable(method) and 
-            hasattr(method, '_column_spec') and 
-            isinstance(method._column_spec, ColumnSpec)
-        ]
-
-        # Sort methods by their specified order
-        # Did you know that Python lists retain order of insertion?
-        # You don't have to specify the order, and your columns 
-        # will be in the order you defined them!
-        # However, being explicit will help when you want to give
-        # someone else the config so the order of the columns 
-        # doesn't matter when they define a DataRow to import it.
-        methods.sort(key=lambda item: item._column_spec.order)
-        
-        # Return the list of column specifications
-        return [method for _, method in methods]
-
     def fetch_data(self) -> List[Column]:
         """
         Fetch the data by calling decorated methods in the specified order.
@@ -116,6 +119,7 @@ class DataRow:
             - List[Column]: The list of columns in the row.
         """
         self._is_data_fetched = True
+
         # Collect methods decorated with @mark_as_column
         methods = self._fetch_decorated_methods()
 
@@ -181,6 +185,15 @@ class DataRow:
             - List[str]: The list of fixed-width strings for each column.
         """
         return [col.get_data_as_fixed_width() for col in self.columns]
+    
+    def get_header_row(self) -> List[str]:
+        """
+        Get the header row as a list of column names.
+
+        - Returns:
+            - List[str]: The list of column names.
+        """
+        return [col.spec.name for col in self.columns]
 
     def __repr__(self):
         return f"DataRow({self.columns})"
