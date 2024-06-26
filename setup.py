@@ -1,5 +1,7 @@
 from setuptools import setup, find_packages
 
+PACKAGE = 'fixedwidthpy'
+VERSION = '1.2.0'
 AUTHOR = 'VoxLight'
 AUTHOR_EMAIL = 'VoxLight@protonmail.com'
 REPO_URL = 'https://github.com/VoxLight/fwf'
@@ -10,15 +12,10 @@ KEYWORDS = [
     'fixed width alternative',
     'fixed width columns',
     'fixed width rows',
-    # TODO: 'fixed width file reader',
 ]
-
-
-
-
 setup(
-    name='fixedwidthpy',
-    version='1.1.2',
+    name=PACKAGE,
+    version=VERSION,
     packages=find_packages(),
     extras_require={
         'dev': [
@@ -37,7 +34,7 @@ setup(
         'Source Code': REPO_URL,
     },
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
