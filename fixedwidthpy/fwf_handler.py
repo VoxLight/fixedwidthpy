@@ -15,11 +15,7 @@ Copyright 2024 https://github.com/VoxLight
 
    /fixedwidthpy/fwf_handler.py
 """
-from typing import List, Dict, Union, Tuple, Literal
-
-from collections import OrderedDict as OD
-import datetime
-
+from typing import List, Literal
 from .column import ColumnSpec, Column
 from .datarow import DataRow
 from .exceptions import InvalidDataRow
