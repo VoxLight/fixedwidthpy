@@ -17,7 +17,6 @@ Copyright 2024 https://github.com/VoxLight
 """
 import pytest
 from fixedwidthpy import DataRow, mark_as_column
-from fixedwidthpy.column import Column, ColumnSpec
 
 class _TestRecord(DataRow):
 

@@ -16,7 +16,7 @@ Copyright 2024 https://github.com/VoxLight
    /fixedwidthpy/fwf_handler.py
 """
 import pytest
-from fixedwidthpy.fwf_handler import FixedWidthFileHandler
+from fixedwidthpy.handler import FixedWidthFileHandler
 from fixedwidthpy.datarow import DataRow, mark_as_column
 from fixedwidthpy.column import ColumnSpec
 
@@ -50,8 +50,8 @@ def test_fwf_handler_export_to_fw_file(tmp_path):
     handler = FixedWidthFileHandler()
     record1 = _TestRecord("valid", 1000)
     record2 = _TestRecord("valid", 2000)
-    record1.fetch_data()
-    record2.fetch_data()
+    # record1.fetch_data()
+    # record2.fetch_data()
     handler.add_row(record1)
     handler.add_row(record2)
 

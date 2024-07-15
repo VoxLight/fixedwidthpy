@@ -17,7 +17,7 @@ Copyright 2024 https://github.com/VoxLight
 """
 import pytest
 from fixedwidthpy.column import ColumnSpec, Column
-from fixedwidthpy.exceptions import InvalidColumnSpec, InvalidColumnData
+from fixedwidthpy.exceptions import InvalidColumnSpec
 
 def test_column_spec_initialization():
     spec = ColumnSpec(name="Test Column", width=10, fill='0', align='right')
