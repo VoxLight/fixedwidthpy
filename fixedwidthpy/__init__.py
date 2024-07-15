@@ -15,6 +15,11 @@ Copyright 2024 https://github.com/VoxLight
 
    /fixedwidthpy/__init__.py
 """
-from .column import Column, ColumnSpec
 from .datarow import DataRow, mark_as_column
-from .fwf_handler import FixedWidthFileHandler
+from .handler import FixedWidthFileHandler
+
+__all__ = [
+    'DataRow',
+    'mark_as_column',
+    'FixedWidthFileHandler',
+]
