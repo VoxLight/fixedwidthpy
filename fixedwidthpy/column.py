@@ -18,7 +18,6 @@ Copyright 2024 https://github.com/VoxLight
 from typing import Any, Dict
 
 from .exceptions import InvalidColumnSpec, InvalidColumnData
-from . import logger
 
 class ColumnSpec:
 
@@ -87,7 +86,7 @@ class Column:
             raise InvalidColumnData("Value for 'spec' not of type 'ColumnSpec'.")
         
         if len(str(data)) > spec.width:
-            logger.warning(f"Data for column '{spec.name}' exceeds width of {spec.width}. Data will be truncated in final output.")
+            # logger.warning(f"Data for column '{spec.name}' exceeds width of {spec.width}. Data will be truncated in final output.")
             data = str(data)[:spec.width]
         
         self.data: str = str(data)

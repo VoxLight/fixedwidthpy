@@ -16,10 +16,7 @@ Copyright 2024 https://github.com/VoxLight
    /fixedwidthpy/__init__.py
 """
 from .datarow import DataRow, mark_as_column
-from .fwf_handler import FixedWidthFileHandler
-
-import logging
-logger = logging.getLogger(__name__)
+from .handler import FixedWidthFileHandler
 
 __all__ = [
     'DataRow',

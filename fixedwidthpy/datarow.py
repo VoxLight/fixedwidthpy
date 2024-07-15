@@ -15,11 +15,8 @@ Copyright 2024 https://github.com/VoxLight
 
    /fixedwidthpy/datarow.py
 """
-from typing import List, Any, Dict, Callable
+from typing import List, Any, Callable
 from .column import Column, ColumnSpec
-from . import logger
-import json
-import os
 
 
 FixedWidthConfig = List[ColumnSpec]
@@ -100,8 +97,7 @@ class DataRow:
 
         methods.sort(key=lambda item: item._column_spec.order)
         
-        # Return the list of column specifications
-        return [method for _, method in methods]
+        return methods
 
     def add_column(self, column: Column):
         """
@@ -160,7 +156,7 @@ class DataRow:
         """
         self.is_valid = False
         self.invalid_reason = reason
-        logger.info(f"Row invalidated: {reason}")
+        # logger.info(f"Row invalidated: {reason}")
 
     def fetch_data(self) -> List[Column]:
         """

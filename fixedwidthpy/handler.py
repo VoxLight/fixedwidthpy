@@ -35,8 +35,6 @@ class FixedWidthFileHandler:
         - Raises:
             - InvalidDataRow: If the value passed for 'row' is not a DataRow.
         """
-        if not isinstance(row, DataRow):
-            raise InvalidDataRow(f"Only DataRow objects can be added. {row} is of type {type(row).__name__}.")
         self._data.append(row)
 
     def export_to_fw_file(
@@ -53,22 +51,14 @@ class FixedWidthFileHandler:
             - include_header: Whether to include a header line in the file.
             - mode: The file mode to use for writing. Default is 'x' (exclusive creation).
         """
-        if not self._data:
-            raise ValueError("No data to export.")
-        
-        try:
-            with open(file_path, mode) as f:
-                for data_row in self._data:
-                    if not data_row._is_data_fetched:
-                        data_row.fetch_data()
-                    if not data_row.is_valid:
-                        continue
-                    row_line = ''.join(data_row.get_data_row())
-                    f.write(row_line + '\n')
-        except FileNotFoundError:
-            raise FileNotFoundError(f"The file path {file_path} is invalid.")
-        except ValueError as ve:
-            raise ValueError(f"Error exporting data to fixed-width file: {ve}")
+        with open(file_path, mode) as f:
+            for data_row in self._data:
+                if not data_row._is_data_fetched:
+                    data_row.fetch_data()
+                if not data_row.is_valid:
+                    continue
+                row_line = ''.join(data_row.get_data())
+                f.write(row_line + '\n')
 
     def import_from_fw_file(
             self, 
@@ -88,6 +78,7 @@ class FixedWidthFileHandler:
         Raises:
             FileNotFoundError: If either of the file paths are invalid.
         """
+        raise NotImplementedError("This method has not been implemented yet.")
         try:
             with open(config_path, 'r') as f:
                 config: List[dict] = f.read()
