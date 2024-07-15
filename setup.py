@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 PACKAGE = 'fixedwidthpy'
-VERSION = '1.1.3'
+VERSION = '1.2.0'
 AUTHOR = 'VoxLight'
 AUTHOR_EMAIL = 'VoxLight@protonmail.com'
 REPO_URL = 'https://github.com/VoxLight/fwf'
