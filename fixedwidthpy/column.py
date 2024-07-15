@@ -75,7 +75,8 @@ class Column:
             - spec: The specification for the column width, fill character, and alignment.
         """
         if len(str(data)) > spec.width:
-            # logger.warning(f"Data for column '{spec.name}' exceeds width of {spec.width}. Data will be truncated in final output.")
+            #raise InvalidColumnData(f"Data in column '{spec.name}' exceeds column width ({spec.width}).")
+            print(f"Data in column '{spec.name}' truncated to ({spec.width}) characters.")
             data = str(data)[:spec.width]
         
         self.data: str = str(data)
