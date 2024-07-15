@@ -15,7 +15,7 @@ Copyright 2024 https://github.com/VoxLight
 
    /fixedwidthpy/column.py
 """
-from typing import Any, Dict
+from typing import Any, Dict, Literal
 
 from .exceptions import InvalidColumnSpec, InvalidColumnData
 
@@ -25,7 +25,7 @@ class ColumnSpec:
                  name:str, 
                  width: int, 
                  fill: str = ' ', 
-                 align: str = 'left',
+                 align: str = Literal['left', 'right'],
                  order: int = -1
                  ):
         """
@@ -37,14 +37,6 @@ class ColumnSpec:
             - fill: The fill character for the column.
             - align: The alignment of the column ('left' or 'right').
         """
-        if not isinstance(name, str):
-            raise InvalidColumnSpec("Value for 'name' not a string.")
-        if not isinstance(width, int):
-            raise InvalidColumnSpec("Value for 'width' not an integer.")
-        if not isinstance(fill, str):
-            raise InvalidColumnSpec("Value for 'fill' not a string.")
-        if not isinstance(align, str):
-            raise InvalidColumnSpec("Value for 'align' not a string.")
         if align not in ('left', 'right'):
             raise InvalidColumnSpec("Value for 'align' must be 'left' or 'right'.")
         if len(fill) != 1:
@@ -82,9 +74,6 @@ class Column:
             - data: The data for the column.
             - spec: The specification for the column width, fill character, and alignment.
         """
-        if not isinstance(spec, ColumnSpec):
-            raise InvalidColumnData("Value for 'spec' not of type 'ColumnSpec'.")
-        
         if len(str(data)) > spec.width:
             # logger.warning(f"Data for column '{spec.name}' exceeds width of {spec.width}. Data will be truncated in final output.")
             data = str(data)[:spec.width]
